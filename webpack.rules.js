@@ -25,11 +25,20 @@ module.exports = [
     ],
   },
   {
+    test: /\.(j|t)s?$/,
+    exclude: /node_modules/,
+    loaders: [
+      {
+        loader: "babel-loader",
+      },
+    ],
+  },
+  {
     test: /\.(scss|css)$/,
     use: ["style-loader", "css-loader"],
   },
   {
-    test: /\.(svg|ico|icns)$/,
+    test: /\.(svg|ico|icns|py)$/,
     loader: "file-loader",
     options: {
       name: "[path][name].[ext]",

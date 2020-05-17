@@ -1,0 +1,12 @@
+import EStore from "electron-store";
+const db = new EStore();
+console.log("Database:", db.path);
+
+export function saveState(storeId: string, state: any) {
+  console.log(` Saving state (${storeId})`, state);
+  db.set(`state.${storeId}`, state);
+}
+
+export function getState(storeId: string) {
+  return db.get(`state.${storeId}`);
+}
