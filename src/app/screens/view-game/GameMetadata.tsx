@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FunctionComponent } from "react";
 import {
   CircularProgress,
   Paper,
@@ -7,8 +7,12 @@ import {
   createStyles,
 } from "@material-ui/core";
 import { GameMetadata } from "../../store/replays/ReplayJson";
+import { CarballAnalysisHandler } from "../../carball/carball-json";
+import { green, red } from "@material-ui/core/colors";
 
-type Propss = { gameMetadata: GameMetadata };
+type Props = {
+  analysis: CarballAnalysisHandler;
+} & React.HTMLAttributes<{}>;
 
 function getTimeString(time: number) {
   const seconds = time % 60;
@@ -16,13 +20,44 @@ function getTimeString(time: number) {
   return `${minutes}min ${Math.round(seconds)}sec`;
 }
 
-export default function GMetadata(props: Propss) {
-  const { gameMetadata } = props;
+const useStyle = makeStyles((theme) =>
+  createStyles({
+    infoContainer: {
+      padding: theme.spacing(2),
+    },
+  }),
+);
+
+function displayKeyValuePair(key: string, value: string | number) {
   return (
-    <Paper>
-      <Typography variant="h5">Game</Typography>
-      <Typography>{gameMetadata.playlist}</Typography>
-      <Typography>{getTimeString(gameMetadata.length)}</Typography>
-    </Paper>
+    <Typography>
+      <b>{key} </b>
+      {value}
+    </Typography>
   );
 }
+
+function renderWinLoss(isWin: boolean) {
+  return isWin ? (
+    <span style={{ color: green[500] }}>WIN</span>
+  ) : (
+    <span style={{ color: red[500] }}>LOSS</span>
+  );
+}
+
+export const GMetadata: FunctionComponent<Props> = (props) => {
+  const { analysis } = props;
+  const { gameMetadata } = analysis.getJson();
+  const classes = useStyle();
+  const isWin = analysis.didWeWin();
+  return (
+    <Paper className={`${props.className} ${classes.infoContainer}`}>
+      <Typography variant="h4">Game {renderWinLoss(isWin)}</Typography>
+
+      {displayKeyValuePair("Playlist", gameMetadata.playlist)}
+      {displayKeyValuePair("Time", getTimeString(gameMetadata.length))}
+      {displayKeyValuePair("Goals", gameMetadata.goals.length)}
+      {displayKeyValuePair("Map", gameMetadata.map)}
+    </Paper>
+  );
+};
