@@ -1,7 +1,7 @@
 import { createStore, createHook } from "react-sweet-state";
 const { dialog }: typeof Electron.remote = window.require("electron").remote;
-import { getPythonVersion, getCarballInstalled } from "../../carball";
-import * as db from "../../db";
+import { getPythonVersion, getCarballInstalled } from "../../system/carball";
+import * as db from "../../system/db";
 import fs from "fs";
 import os from "os";
 import paths from "path";

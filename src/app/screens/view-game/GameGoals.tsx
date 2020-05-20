@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from "react";
 import { Paper, Typography, makeStyles, createStyles } from "@material-ui/core";
 import { GameMetadata } from "../../store/replays/ReplayJson";
-import { CustomGoal } from "../../carball/types";
+import { CustomGoal } from "../../system/carball/types";
 
 type Props = { gameGoals: CustomGoal[] } & React.HTMLAttributes<{}>;
 

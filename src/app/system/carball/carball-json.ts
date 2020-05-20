@@ -1,4 +1,4 @@
-import { ReplayJSON, Team } from "../store/replays/ReplayJson";
+import { ReplayJSON, Team } from "../../store/replays/ReplayJson";
 import { CustomDemo, CustomGoal, CustomTeams } from "./types";
 
 export class CarballAnalysisHandler {

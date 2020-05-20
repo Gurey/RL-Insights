@@ -13,7 +13,7 @@ import { GMetadata } from "./GameMetadata";
 import { GameGoals } from "./GameGoals";
 import { GameDemos } from "./GameDemos";
 import { Team } from "./Team/Team";
-import { CarballAnalysisHandler } from "../../carball/carball-json";
+import { CarballAnalysisHandler } from "../../system/carball/carball-json";
 import { Players } from "./Players/Players";
 
 const useStyle = makeStyles((theme) =>

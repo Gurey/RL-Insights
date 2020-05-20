@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from "react";
 import { Paper, Typography, makeStyles, createStyles } from "@material-ui/core";
-import { CustomDemo } from "../../carball/types";
+import { CustomDemo } from "../../system/carball/types";
 
 type Props = { gameDemos: CustomDemo[] } & React.HTMLAttributes<{}>;
 

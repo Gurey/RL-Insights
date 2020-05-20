@@ -1,4 +1,4 @@
-import { Team } from "../store/replays/ReplayJson";
+import { Team } from "../../store/replays/ReplayJson";
 
 export type CustomGoal = {
   player: string;

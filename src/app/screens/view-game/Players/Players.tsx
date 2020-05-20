@@ -11,7 +11,7 @@ import {
   TableRow,
   TableBody,
 } from "@material-ui/core";
-import { CarballAnalysisHandler } from "../../../carball/carball-json";
+import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
 import { PlayersBoost } from "./PlayersBoost";
 import { GenericPlayersStatsTable } from "./GenericPlayersStatsTable";
 

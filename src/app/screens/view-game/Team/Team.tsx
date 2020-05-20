@@ -11,8 +11,8 @@ import {
   TableRow,
   TableBody,
 } from "@material-ui/core";
-import { CarballAnalysisHandler } from "../../../carball/carball-json";
-import { CustomDemo } from "../../../carball/types";
+import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
+import { CustomDemo } from "../../../system/carball/types";
 import { Possession } from "../../../store/replays/ReplayJson";
 import { keysOf } from "../../../util/keysOf";
 import { TeamPossessionTable } from "./TeamPossessionTable";
