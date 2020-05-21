@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 
 import { useSettings } from "./settings/settingsStore";
 import { CircularProgress } from "@material-ui/core";
@@ -9,8 +9,9 @@ function doneLoading(states: { restored: boolean }[]) {
 
 export default function RehydrateStores(props: React.PropsWithChildren<any>) {
   const [settingsState, settingsActions] = useSettings();
-  console.log(settingsState.replaysFolder);
-  useMemo(settingsActions.initState, []);
+  useEffect(() => {
+    settingsActions.initState();
+  }, []);
   const done = doneLoading([settingsState]);
   if (!done) {
     console.log("Not done!");

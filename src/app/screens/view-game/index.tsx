@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { RouteComponentProps } from "react-router-dom";
 import { ReplayJSON } from "../../store/replays/ReplayJson";
-import * as fileService from "../../system/readFiles";
+import * as fileService from "../../system/file/readFiles";
 import { GMetadata } from "./GameMetadata";
 import { GameGoals } from "./GameGoals";
 import { GameDemos } from "./GameDemos";
@@ -46,10 +46,9 @@ export default function ViewGame(props: Props) {
   const [replayJson, setReplayJson] = useState<ReplayJSON>();
   useEffect(() => {
     console.log("Loading replay...");
-    fileService.readFileAsObject<ReplayJSON>(replay.path).then((obj) => {
-      console.log("Loading replay done!");
-      setReplayJson((state) => ({ ...state, ...obj }));
-    });
+    const obj = fileService.readFileAsObject<ReplayJSON>(replay.path);
+    console.log("Loading replay done!");
+    setReplayJson((state) => ({ ...state, ...obj }));
   }, [replay.file]);
   if (!replayJson) return <CircularProgress />;
   const json = new CarballAnalysisHandler(replayJson, "76561197994894847");

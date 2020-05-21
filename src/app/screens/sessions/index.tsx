@@ -6,7 +6,6 @@ import { RouteComponentProps } from "react-router-dom";
 type Props = RouteComponentProps;
 
 export default function Sessions(props: Props) {
-  console.log(props);
   const [state, actions] = useReplays();
   useMemo(actions.loadReplayJsons, []);
   if (state.replayJsons.length < 0) {

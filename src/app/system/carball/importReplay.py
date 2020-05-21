@@ -31,3 +31,5 @@ if os.path.exists(_json_name):
     os.remove(_json_name)
 else:
     print("The file does not exist")
+
+print(_output_name)

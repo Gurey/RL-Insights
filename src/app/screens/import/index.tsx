@@ -1,13 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSettings } from "../../store/settings/settingsStore";
 import { useReplays } from "../../store/replays";
 import {
   Button,
   Typography,
   Card,
-  createStyles,
-  Theme,
-  makeStyles,
   CardContent,
   TableContainer,
   Paper,
@@ -17,24 +14,20 @@ import {
   TableRow,
   Table,
   CircularProgress,
+  TableFooter,
+  TablePagination,
 } from "@material-ui/core";
 import fs from "fs";
-
-const getReplayFiles = (path: string) => {
-  return new Promise((resolve, reject) => {
-    fs.readdir(path, (err, files) => {
-      if (err) return reject(err);
-      return resolve(files);
-    });
-  });
-};
 
 export default function ImportScreen(props: any) {
   const [settingsState] = useSettings();
   const [state, actions] = useReplays();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(50);
   useMemo(() => actions.findReplays(settingsState.replaysFolder), [
     settingsState.replaysFolder,
   ]);
+
   return (
     <div>
       <Card>
@@ -52,28 +45,64 @@ export default function ImportScreen(props: any) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {state.replays &&
-              state.replays.map((r) => {
-                const importClick = () => {
-                  actions.importReplay(r);
-                };
-                const importButton = !r.importing ? (
-                  <Button size="small" color="primary" onClick={importClick}>
-                    {r.imported ? "Re-import" : "Import"}
-                  </Button>
-                ) : (
-                  <CircularProgress size={24} />
-                );
-                return (
-                  <TableRow key={r.name}>
-                    <TableCell>{r.name}</TableCell>
-                    <TableCell>{r.date}</TableCell>
-                    <TableCell>{r.imported ? "Yes" : "No"}</TableCell>
-                    <TableCell>{importButton}</TableCell>
-                  </TableRow>
-                );
-              })}
+            {state.replays.length > 0 &&
+              state.replays
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((r) => {
+                  const importClick = () => {
+                    const outputPath = actions
+                      .importReplay(r)
+                      .then((output) => {
+                        if (output) {
+                          console.log(`Index ${output}`);
+                          actions.indexReplay(output, settingsState.playerId);
+                        }
+                      });
+                  };
+                  const importButton = !r.importing ? (
+                    <Button size="small" color="primary" onClick={importClick}>
+                      {r.imported ? "Re-import" : "Import"}
+                    </Button>
+                  ) : (
+                    <CircularProgress size={24} />
+                  );
+                  return (
+                    <TableRow key={r.name}>
+                      <TableCell>{r.name}</TableCell>
+                      <TableCell>{r.date}</TableCell>
+                      <TableCell>{r.imported ? "Yes" : "No"}</TableCell>
+                      <TableCell>{importButton}</TableCell>
+                    </TableRow>
+                  );
+                })}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[25, 50, 100]}
+                colSpan={3}
+                count={state.replays.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                SelectProps={{
+                  inputProps: { "aria-label": "rows per page" },
+                  native: true,
+                }}
+                onChangePage={(
+                  event: React.MouseEvent<HTMLButtonElement> | null,
+                  newPage: number,
+                ) => setPage(newPage)}
+                onChangeRowsPerPage={(
+                  event: React.ChangeEvent<
+                    HTMLInputElement | HTMLTextAreaElement
+                  >,
+                ) => {
+                  setRowsPerPage(parseInt(event.target.value, 10));
+                  setPage(0);
+                }}
+              />
+            </TableRow>
+          </TableFooter>
         </Table>
       </TableContainer>
     </div>

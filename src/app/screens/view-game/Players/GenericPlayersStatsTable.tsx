@@ -11,10 +11,7 @@ import {
 import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
 import { keysOf } from "../../../util/keysOf";
 import { unique } from "../../../util/arrayUtils";
-import {
-  PlayerStats,
-  ReplayJSONPlayer,
-} from "../../../store/replays/ReplayJson";
+import { PlayerStats } from "../../../store/replays/ReplayJson";
 
 type Props = {
   name: string;

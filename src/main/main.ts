@@ -33,11 +33,13 @@ const createWindow = () => {
   });
 
   // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
+  setTimeout(() => {
+    mainWindow!.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  }, 1000);
   // Emitted when the window is closed.
   mainWindow.on("closed", () => {
     // Dereference the window object, usually you would store windows

@@ -24,6 +24,9 @@ const Store = createStore({
     carrball: {
       version: (null as unknown) as string,
     },
+    playerId: (null as unknown) as string,
+    playerName: (null as unknown) as string,
+    settingsOk: false,
   },
   actions: {
     initState: () => async ({ setState, getState }) => {
@@ -44,7 +47,7 @@ const Store = createStore({
     validateSettings: () => async ({ setState, getState }) => {
       const pythonVer = await getPythonVersion();
       const carball = await getCarballInstalled();
-      const { replaysFolder } = getState();
+      const { replaysFolder, playerId } = getState();
       let validReplayPath = false;
       if (replaysFolder) {
         const files = fs.readdirSync(replaysFolder);
@@ -54,9 +57,19 @@ const Store = createStore({
         carrball: { version: carball.version },
         python: { version: pythonVer.replace("Python ", "") },
         validReplayPath,
+        settingsOk: !!(pythonVer && carball && validReplayPath && playerId),
       });
     },
-    findReplays: () => async ({ setState, getState }) => {},
+    getKnownPlayers: () => async ({ getState, setState }) => {},
+    setPlayerId: ({
+      playerId,
+      playerName,
+    }: {
+      playerId: string;
+      playerName: string;
+    }) => ({ setState }) => {
+      setState({ playerId, playerName });
+    },
   },
 });
 

@@ -14,7 +14,7 @@ import { HashRouter as Router, Link, Switch, Route } from "react-router-dom";
 import Me from "../screens/me";
 import ImportScreen from "../screens/import";
 import MyTeam from "../screens/my-team";
-import Settings from "../screens/settings";
+import { Settings } from "../screens/settings";
 import Sessions from "../screens/sessions";
 import ViewGame from "../screens/view-game";
 const drawerWidth = 240;
