@@ -22,17 +22,23 @@ export function packNumbers(objects: any[]) {
 
 export function getStats(objects: any[]) {
   const allNumbers = packNumbers(objects);
+  console.log(allNumbers);
   return walkObject(
     {},
     allNumbers,
-    (_, values: number[]) => {
-      return {
-        max: Math.max(...values),
-        min: Math.min(...values),
-        mean: stats.mean(values),
-        stdDev: stats.stdev(values),
-        numberOfDataPoints: values.length,
-      } as AnalysisDataNode;
+    (_, values: number[], key) => {
+      try {
+        return {
+          max: Math.max(...values),
+          min: Math.min(...values),
+          mean: stats.mean(values),
+          stdDev: stats.stdev(values),
+          numberOfDataPoints: values.length,
+        } as AnalysisDataNode;
+      } catch (error) {
+        console.log(`Failed to analyze (${key})`, values);
+        return Number.NaN;
+      }
     },
     undefined,
     true,
@@ -64,7 +70,7 @@ export function walkObject(
         typeof objValue[0] === "number"
       ) {
         if (!base[key]) {
-          base[key] = 0;
+          base[key] = [];
         }
         base[key] = fn(baseValue, objValue, currentKey);
         continue;
@@ -76,7 +82,13 @@ export function walkObject(
         base[key] = fn(baseValue, objValue, currentKey);
       }
       if (typeof obj[key] === "object") {
-        base[key] = walkObject(baseValue, objValue, fn, currentKey);
+        base[key] = walkObject(
+          baseValue,
+          objValue,
+          fn,
+          currentKey,
+          lookForNumberArray,
+        );
         continue;
       }
     } catch (error) {

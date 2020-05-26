@@ -1,7 +1,12 @@
 export type ReplayIndex = { [key: string]: PlaylistIndex };
 
+export type PlaylistIndexContainer = {
+  [key: string]: PlaylistIndex;
+};
+
 export type PlaylistIndex = {
   fileName: string;
+  jsonPath: string;
   replayName: string;
   gameDate: number;
   win: boolean | null;

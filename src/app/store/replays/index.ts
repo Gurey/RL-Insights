@@ -49,7 +49,7 @@ const Store = createStore({
     }) => {
       const json = fileService.readFileAsObject<ReplayJSON>(replayJsonPath);
       const analysis = new CarballAnalysisHandler(json, playerId);
-      const index = gameService.createReplayIndex(analysis);
+      const index = gameService.createReplayIndex(replayJsonPath, analysis);
       db.replayIndex().saveReplayIndex(json.gameMetadata.playlist, index);
     },
   },

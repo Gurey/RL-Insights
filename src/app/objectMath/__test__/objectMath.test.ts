@@ -58,5 +58,19 @@ describe("Object math", () => {
         stdDev: 0.816496580927726,
       });
     });
+    test("Can get stats nested", () => {
+      const data = [
+        { test: 3, nest: { value: 1 } },
+        { test: 3, nest: { value: 1 } },
+      ];
+      const res = oMath.getStats(data);
+      expect(res.nest.value).toEqual({
+        max: 1,
+        min: 1,
+        mean: 1,
+        stdDev: 0,
+        numberOfDataPoints: 2,
+      });
+    });
   });
 });

@@ -32,11 +32,13 @@ export async function getWinsAndLosses(
 }
 
 export function createReplayIndex(
+  jsonPath: string,
   replayJson: CarballAnalysisHandler,
 ): PlaylistIndex {
   const { gameMetadata, players } = replayJson.getJson();
   const index: PlaylistIndex = {
     fileName: gameMetadata.id,
+    jsonPath,
     gameDate: +gameMetadata.time,
     players: players.map((p) => ({
       name: p.name,

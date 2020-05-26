@@ -1,5 +1,5 @@
 import ElectronStore from "electron-store";
-import { ReplayIndex, PlaylistIndex } from "./types";
+import { ReplayIndex, PlaylistIndex, PlaylistIndexContainer } from "./types";
 import { keys } from "@material-ui/core/styles/createBreakpoints";
 import { sortObject, sortObjectByKey } from "../../util/sortObject";
 
@@ -21,7 +21,7 @@ export class ReplayIndexDB {
   }
 
   getReplays(playlist: string) {
-    const files = this.store.get(`index.playlist.${playlist}`) as ReplayIndex;
-    return sortObjectByKey(files, "gameDate");
+    const files = this.store.get(`index.playlist.${playlist}`) as PlaylistIndex;
+    return sortObjectByKey(files, "gameDate") as PlaylistIndexContainer;
   }
 }
