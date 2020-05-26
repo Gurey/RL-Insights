@@ -2,7 +2,7 @@ import * as files from "../system/file/readFiles";
 import { ReplayJSON } from "../store/replays/ReplayJson";
 import { CarballAnalysisHandler } from "../system/carball/carball-json";
 import { ReplayIndex, PlaylistIndex } from "../system/db/types";
-import { Replay } from "@material-ui/icons";
+import stats from "stats-lite";
 
 export async function getWinsAndLosses(
   paths: string[],

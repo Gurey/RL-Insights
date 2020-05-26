@@ -1,6 +1,4 @@
-export type ReplayIndex = {
-  playlist: { [key: string]: string[] };
-};
+export type ReplayIndex = { [key: string]: PlaylistIndex };
 
 export type PlaylistIndex = {
   fileName: string;

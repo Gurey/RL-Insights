@@ -18,6 +18,7 @@ import { useSettings } from "../../store/settings/settingsStore";
 import { useReplays } from "../../store/replays/index";
 import { ReplayJSONPlayer, ReplayJSON } from "../../store/replays/ReplayJson";
 import { findPlayerId } from "./findPlayerId";
+import * as carballService from "../../system/carball";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -45,6 +46,8 @@ export const Settings = (props: any) => {
         ] as ReplayJSONPlayer[])
       : [],
   });
+  const [intallingCarball, setInstallingCarball] = useState(false);
+  const [intallingCarballMessage, setInstallingCarballMessage] = useState("");
   useEffect(() => {
     actions.validateSettings();
   }, [
@@ -69,6 +72,38 @@ export const Settings = (props: any) => {
     ) : (
       <Block style={{ color: red[500] }} alignmentBaseline="baseline" />
     );
+  };
+
+  const installCarball = () => {
+    setInstallingCarball(true);
+    return carballService
+      .installCarball((dep: string) =>
+        setInstallingCarballMessage(`Installing ${dep}`),
+      )
+      .then(() => {
+        setInstallingCarball(false);
+        actions.validateSettings();
+      })
+      .catch((e) => {
+        setInstallingCarball(false);
+        setInstallingCarballMessage(e.message);
+      });
+  };
+
+  const renderInstallCarball = () => {
+    if (intallingCarball) {
+      return (
+        <span>
+          <CircularProgress />
+        </span>
+      );
+    } else {
+      return (
+        <span>
+          <Button onClick={installCarball}>Install</Button>
+        </span>
+      );
+    }
   };
 
   const onFindMyPlayerId = () => {
@@ -155,11 +190,11 @@ export const Settings = (props: any) => {
           </Typography>
           <Typography>
             {renderCheckListIcon(state.python.version !== null)}
-            Python {state.python.version}
+            Python: {state.python.version}
           </Typography>
           <Typography>
-            {renderCheckListIcon(state.carrball !== null)}
-            Carball {state.carrball.version}
+            {renderCheckListIcon(state.carrball.error === null)}
+            Carball: {state.carrball.version || state.carrball.error}
           </Typography>
           <Typography>
             {renderCheckListIcon(state.playerId !== null)}
@@ -181,6 +216,15 @@ export const Settings = (props: any) => {
           >
             Select replay folder
           </Button>
+        </CardContent>
+      </Card>
+      <Card className={classes.card}>
+        <CardContent>
+          <Typography className={classes.title} variant="h5">
+            Carball
+          </Typography>
+          {renderInstallCarball()}
+          <Typography>{intallingCarballMessage}</Typography>
         </CardContent>
       </Card>
       <Card className={classes.card}>

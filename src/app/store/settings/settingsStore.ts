@@ -13,16 +13,18 @@ const INITIAL_REPLAY_FOLDER = paths.resolve(
 const Store = createStore({
   name: "settings",
   initialState: {
+    pythonPath: (null as unknown) as string,
     restored: false,
     storeId: "settings",
     replaysFolder: INITIAL_REPLAY_FOLDER,
     validReplayPath: false,
     replayPaths: [] as string[],
     python: {
-      version: (null as unknown) as string,
+      version: (null as unknown) as string | null,
     },
     carrball: {
-      version: (null as unknown) as string,
+      error: (null as unknown) as string | null,
+      version: (null as unknown) as string | null,
     },
     playerId: (null as unknown) as string,
     playerName: (null as unknown) as string,
@@ -45,20 +47,63 @@ const Store = createStore({
       }
     },
     validateSettings: () => async ({ setState, getState }) => {
-      const pythonVer = await getPythonVersion();
-      const carball = await getCarballInstalled();
-      const { replaysFolder, playerId } = getState();
-      let validReplayPath = false;
-      if (replaysFolder) {
-        const files = fs.readdirSync(replaysFolder);
-        validReplayPath = files.some((file) => file.includes(".replay"));
+      try {
+        console.log(1);
+        try {
+          const pythonVer = await getPythonVersion();
+          setState({
+            python: { version: pythonVer.replace("Python ", "") },
+          });
+        } catch (error) {
+          console.log(error);
+          setState({ python: { version: null as any } });
+        }
+        console.log(2);
+        try {
+          const carball = await getCarballInstalled();
+          console.log(carball);
+          setState({
+            carrball: { version: carball.version, error: null },
+          });
+        } catch (error) {
+          console.log(3);
+          let message = `${error.message}`.split(os.EOL)[0];
+          if (message.includes("WARNING: Package(s) not found: carball")) {
+            message = "Not found";
+          }
+          console.log(4);
+          setState({ carrball: { version: null as any, error: message } });
+          console.log(5);
+        }
+        const { replaysFolder, playerId } = getState();
+        let validReplayPath = false;
+        if (replaysFolder) {
+          const files = fs.readdirSync(replaysFolder);
+          validReplayPath = files.some((file) => file.includes(".replay"));
+        }
+        const { python, carrball } = getState();
+        console.log(
+          "Validation",
+          python.version,
+          carrball,
+          validReplayPath,
+          playerId,
+        );
+        const settingsOk = !!(
+          python.version !== null &&
+          carrball.version !== null &&
+          validReplayPath &&
+          playerId
+        );
+        console.log("Settings OK", settingsOk);
+        setState({
+          validReplayPath,
+          settingsOk,
+        });
+      } catch (error) {
+        console.log(100);
+        setState({ settingsOk: false });
       }
-      setState({
-        carrball: { version: carball.version },
-        python: { version: pythonVer.replace("Python ", "") },
-        validReplayPath,
-        settingsOk: !!(pythonVer && carball && validReplayPath && playerId),
-      });
     },
     getKnownPlayers: () => async ({ getState, setState }) => {},
     setPlayerId: ({
@@ -69,6 +114,9 @@ const Store = createStore({
       playerName: string;
     }) => ({ setState }) => {
       setState({ playerId, playerName });
+    },
+    setPythonPath: (pythonPath: string) => ({ setState }) => {
+      setState({ pythonPath });
     },
   },
 });

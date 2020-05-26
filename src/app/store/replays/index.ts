@@ -29,6 +29,7 @@ const Store = createStore({
       try {
         const importRes = await carballService.importReplay(replay);
         outPath = importRes.lastLine!;
+        console.log(outPath);
         allReplays[index].imported = true;
         allReplays[index].importing = false;
       } catch (error) {

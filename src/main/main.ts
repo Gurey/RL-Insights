@@ -1,9 +1,17 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain, session } from "electron";
 import path from "path";
+import { downloadFile } from "./downloadFile";
+
+ipcMain.handle("downloadFile", async (event, args) => {
+  const [url, path, progressChannel] = args;
+  downloadFile(event, url, path, progressChannel);
+});
 
 declare global {
   const MAIN_WINDOW_WEBPACK_ENTRY: string;
 }
+
+console.log(process.versions);
 
 // It will change to be "true" in Electron 9.
 // For more information please check https://github.com/electron/electron/issues/18397
@@ -29,6 +37,7 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
+      webSecurity: false,
     },
   });
 
@@ -37,9 +46,9 @@ const createWindow = () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
-  setTimeout(() => {
-    mainWindow!.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  }, 1000);
+  //setTimeout(() => {
+  mainWindow!.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  //}, 1000);
   // Emitted when the window is closed.
   mainWindow.on("closed", () => {
     // Dereference the window object, usually you would store windows
@@ -73,7 +82,7 @@ app.on("activate", () => {
 
 function addReactDevTools() {
   const devToolsModule = path.join(process.cwd(), "lib", "react-dev-tools");
-  BrowserWindow.addDevToolsExtension(devToolsModule);
+  // session.addDevToolsExtension(devToolsModule);
 }
 
 // In this file you can include the rest of your app's specific main process
