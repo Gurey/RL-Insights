@@ -219,10 +219,10 @@ export interface Loadout {
 }
 
 export interface PlayerStats {
-  boost: { [key: string]: number };
+  boost: any;
   distance: Distance;
   possession: Possession;
-  positionalTendencies: { [key: string]: number };
+  positionalTendencies: any;
   averages: StatsAverages;
   hitCounts: HitCounts;
   controller: Controller;

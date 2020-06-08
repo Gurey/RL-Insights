@@ -10,18 +10,19 @@ import {
 } from "@material-ui/core";
 import { PlayerStats } from "../../store/replays/ReplayJson";
 import { keysOf } from "../../util/keysOf";
+import { ReplayAnalysisData } from "../../store/replays";
 
 type Props = {
   name: string;
-  analysis: AnalysisData<PlayerStats>;
+  analysis: ReplayAnalysisData;
   stat: keyof PlayerStats;
 } & React.HTMLAttributes<{}>;
 
 export const PlayerStatsTable: FunctionComponent<Props> = (props) => {
   const { analysis, stat, name } = props;
-  const statGrp = analysis[stat]!;
+  const statGrp = analysis.stats[stat]!;
   const statsKeys = keysOf(statGrp);
-  const statsValueKeys = keysOf(analysis[stat]![statsKeys[0]]);
+  const statsValueKeys = keysOf(analysis.stats[stat]![statsKeys[0]]);
   console.log("grp");
   console.log(statGrp);
   console.log("statsKeys");
@@ -35,6 +36,8 @@ export const PlayerStatsTable: FunctionComponent<Props> = (props) => {
         <TableHead>
           <TableRow>
             <TableCell>{name}</TableCell>
+            <TableCell>goal correlation</TableCell>
+            <TableCell>p-value</TableCell>
             {statsValueKeys.map((header) => (
               <TableCell key={header as string} align="right">
                 {header}
@@ -43,11 +46,17 @@ export const PlayerStatsTable: FunctionComponent<Props> = (props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {statsKeys.map((key) => (
+          {statsKeys.map((key: keyof PlayerStats) => (
             <TableRow key={key}>
               <TableCell>{key}</TableCell>
+              <TableCell align="right">
+                {analysis.goalDiffCorr[stat]![key].correlation?.toFixed(3)}
+              </TableCell>
+              <TableCell align="right">
+                {analysis.goalDiffCorr[stat]![key].pValue?.toFixed(5)}
+              </TableCell>
               {statsValueKeys.map((valueKey) => (
-                <TableCell key={`${key}`} align="right">
+                <TableCell key={`${key}${valueKey as string}`} align="right">
                   {Math.round(statGrp[key]![valueKey])}
                 </TableCell>
               ))}

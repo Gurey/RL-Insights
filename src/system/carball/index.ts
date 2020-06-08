@@ -1,8 +1,8 @@
 import { PythonShell } from "python-shell";
 import path from "path";
 import moment from "moment";
-import * as fileService from "../../../system/file/readFiles";
-import * as arrayUtil from "../../util/arrayUtils";
+import * as fileService from "../file/readFiles";
+import * as arrayUtil from "../../app/util/arrayUtils";
 import { App } from "electron";
 import { existsSync } from "fs";
 // @ts-ignore
@@ -10,7 +10,7 @@ import importReplayScript from "!!raw-loader!./importReplay.py";
 // @ts-ignore
 import pipShowScript from "!!raw-loader!./pipShow.py";
 
-const app: App = window.require("electron").remote.app;
+import { app } from "electron";
 
 const JSON_PATH = path.resolve(app.getPath("userData"), "jsons/");
 

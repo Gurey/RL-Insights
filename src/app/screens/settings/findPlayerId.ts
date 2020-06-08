@@ -1,17 +1,18 @@
 import * as carballService from "../../system/carball";
-import * as fileService from "../../system/file/readFiles";
+import * as fileService from "../../../system/file/readFiles";
 import { ReplayJSON } from "../../store/replays/ReplayJson";
 
-export async function findPlayerId(replaysFolder: string) {
-  console.log("Finding replays...", replaysFolder);
+export async function findPlayerId(
+  replaysFolder: string,
+  statusCallback: (status: string) => void,
+) {
+  statusCallback("Finding replays...");
   const replays = await carballService.loadReplays(replaysFolder);
-  console.log("importing one replay...");
+  statusCallback("importing one replay...");
   await carballService.importReplay(replays[0]);
-  console.log("finding result...");
+  statusCallback("finding result...");
   const jsons = await carballService.loadReplayJsons();
-  console.log("finding players...");
-  const replayFile = await fileService.readFileAsObject<ReplayJSON>(
-    jsons[0].path,
-  );
+  statusCallback("finding players...");
+  const replayFile = fileService.readFileAsObject<ReplayJSON>(jsons[0].path);
   return replayFile;
 }

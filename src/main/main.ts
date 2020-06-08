@@ -1,6 +1,7 @@
-import { app, BrowserWindow, ipcMain, session } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { downloadFile } from "./downloadFile";
+import { ImportReplay } from "./importReplay/importReplay";
 
 ipcMain.handle("downloadFile", async (event, args) => {
   const [url, path, progressChannel] = args;
@@ -33,13 +34,14 @@ const createWindow = () => {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false,
     },
   });
+  ImportReplay.init(mainWindow, app);
 
   // and load the index.html of the app.
 

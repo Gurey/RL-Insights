@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from "react";
 import { Paper, Typography, makeStyles, createStyles } from "@material-ui/core";
-import { CustomDemo } from "../../system/carball/types";
+import { CustomDemo } from "../../../system/carball/types";
 
 type Props = { gameDemos: CustomDemo[] } & React.HTMLAttributes<{}>;
 
@@ -34,7 +34,7 @@ export const GameDemos: FunctionComponent<Props> = (props) => {
   return (
     <Paper className={`${classes.infoContainer} ${props.className}`}>
       <Typography variant="h4">Demos</Typography>
-      {gameDemos.map((demo) => displayKeyValuePair(demo))}
+      {gameDemos && gameDemos.map((demo) => displayKeyValuePair(demo))}
     </Paper>
   );
 };

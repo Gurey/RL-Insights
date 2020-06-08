@@ -18,3 +18,11 @@ export type Player = {
   name: string;
   score: number;
 };
+
+export type GameSession = {
+  wins: number;
+  losses: number;
+  from: number;
+  to: number;
+  replays: PlaylistIndex[];
+};

@@ -1,14 +1,15 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 const remote: Remote = window.require("electron").remote;
-import * as carball from "../../system/carball";
 import Zip from "adm-zip";
 import { downloadFile } from "../../util/downloadFile";
-import fs from "fs";
 
 // Packages to look at
 //www.npmjs.com/package/stream-length
-import { useSettings } from "../../store/settings/settingsStore";
-import { Settings } from "../settings";
+import {
+  useSettings,
+  SettingsState,
+  SettingsActions,
+} from "../../store/settings/settingsStore";
 import {
   makeStyles,
   Theme,
@@ -16,9 +17,13 @@ import {
   Card,
   CardContent,
   Typography,
+  InputLabel,
+  Select,
+  FormControl,
 } from "@material-ui/core";
 import { renderCheckListIcon } from "../../components/check";
 import { Remote } from "electron";
+import { findPlayerId } from "../settings/findPlayerId";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -31,50 +36,76 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const setupApplication = async (
   setStatus: (status: string) => void,
-  validateSettings: () => void,
+  settingsState: SettingsState,
+  settingsActions: SettingsActions,
+  setPlayers: (data: any[]) => void,
 ) => {
-  const pythonZipPath = `./python.zip`;
-  console.log(pythonZipPath);
-  await downloadFile(
-    "https://www.python.org/ftp/python/3.7.7/python-3.7.7-embed-amd64.zip",
-    pythonZipPath,
-    (progress) => {
-      setStatus(`Downloading python ${Math.floor(+progress)}`);
-    },
-  );
-  setStatus("Installing python...");
+  const pythonZipPath = `${remote.app.getPath("temp")}/python.zip`;
+  setStatus("Setting up RL Insight");
+  if (!settingsState.python.version) {
+    await downloadFile(
+      "https://github.com/Gurey/RL-Insights/blob/master/python.zip?raw=true",
+      pythonZipPath,
+      (progress) => {
+        setStatus(`Downloading python ${Math.floor(+progress)}`);
+      },
+    );
+    setStatus("Installing python...");
+    new Zip(pythonZipPath).extractAllTo(`${userData}/python`, false);
+  }
+  setStatus("Validating...");
+  settingsActions.validateSettings();
+  if (!settingsState.validReplayPath) {
+    settingsActions.selectReplayFolder();
+  }
 
-  new Zip(pythonZipPath).extractAllTo(`${userData}/python`, false);
+  setStatus("Finding player ID");
+  if (!settingsState.playerId) {
+    const replayJson = await findPlayerId(
+      settingsState.replaysFolder,
+      setStatus,
+    );
+    const players = replayJson.players.map((p) => ({
+      id: p.id.id,
+      name: p.name,
+    }));
+    setPlayers(players);
+    console.log(players);
+  }
 
-  const embededZip = `${userData}/python/python36.zip`;
-  const tmpFolder = `${embededZip}.tmp`;
-  //new Zip(embededZip).extractAllTo(tmpFolder);
-  fs.unlinkSync(pythonZipPath);
-  //fs.renameSync(tmpFolder, embededZip);
-  setStatus("Installing pip...");
-  // await carball.installPip();
-  await carball.installCarball((currentPackage) =>
-    setStatus(`Installing ${currentPackage}`),
-  );
-  validateSettings();
+  setStatus("Validating settings...");
 };
 
 const userData = remote.app.getPath("userData");
 export default function Onboarding(props: React.PropsWithChildren<any>) {
   const [settingsState, settingsActions] = useSettings();
   const classes = useStyles();
-  const [pythonZip, setPythonZip] = useState(false);
-  const [deps, setDeps] = useState(false);
   const [status, setStatus] = useState("");
   const [settingsValidated, setSettingsValidated] = useState(false);
-  useMemo(() => {
+  const [players, setPlayers] = useState([] as { id: string; name: string }[]);
+  useEffect(() => {
     settingsActions.validateSettings().then(() => setSettingsValidated(true));
   }, [settingsState.settingsOk]);
-  useMemo(() => {
+  useEffect(() => {
     if (settingsValidated && !settingsState.settingsOk) {
-      setupApplication(setStatus, settingsActions.validateSettings);
+      setupApplication(setStatus, settingsState, settingsActions, setPlayers);
     }
   }, [settingsValidated]);
+  const onPlayerSelectChange = (
+    event: React.ChangeEvent<{ value: string }>,
+  ) => {
+    const { value } = event.target;
+    if (!value || value.length === 0) {
+      return;
+    }
+    const player = players.find((p) => p.id === value)!;
+    console.log(name, player);
+    settingsActions.setPlayerId({
+      playerId: player.id,
+      playerName: player.name,
+    });
+    settingsActions.validateSettings();
+  };
 
   if (!settingsState.settingsOk) {
     return (
@@ -90,13 +121,39 @@ export default function Onboarding(props: React.PropsWithChildren<any>) {
             </div>
             <div>
               <Typography>
-                {renderCheckListIcon(pythonZip)} Dependencies
+                {renderCheckListIcon(!!settingsState.carrball.version)} Carball
               </Typography>
             </div>
             <div>
               <Typography>
                 {renderCheckListIcon(settingsState.validReplayPath)} Replay Path
               </Typography>
+            </div>
+            <div>
+              <Typography>
+                {renderCheckListIcon(!!settingsState.playerId)} Player Id
+              </Typography>
+              <FormControl>
+                <InputLabel htmlFor="playerIdSelect">Who are you?</InputLabel>
+                <Select
+                  native
+                  value={settingsState.playerId}
+                  onChange={onPlayerSelectChange}
+                  inputProps={{
+                    id: "playerIdSelect",
+                  }}
+                >
+                  <option aria-label="Select one" value="" />
+                  {players.map((player) => {
+                    const { name, id } = player;
+                    return (
+                      <option key={id} value={id}>
+                        {name}
+                      </option>
+                    );
+                  })}
+                </Select>
+              </FormControl>
             </div>
           </CardContent>
         </Card>

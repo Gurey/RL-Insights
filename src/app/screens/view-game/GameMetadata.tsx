@@ -7,7 +7,7 @@ import {
   createStyles,
 } from "@material-ui/core";
 import { GameMetadata } from "../../store/replays/ReplayJson";
-import { CarballAnalysisHandler } from "../../system/carball/carball-json";
+import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
 import { green, red } from "@material-ui/core/colors";
 
 type Props = {

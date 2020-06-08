@@ -1,6 +1,7 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useEffect } from "react";
 
 import { useSettings } from "./settings/settingsStore";
+import { useReplays } from "./replays";
 import { CircularProgress } from "@material-ui/core";
 
 function doneLoading(states: { restored: boolean }[]) {
@@ -9,8 +10,10 @@ function doneLoading(states: { restored: boolean }[]) {
 
 export default function RehydrateStores(props: React.PropsWithChildren<any>) {
   const [settingsState, settingsActions] = useSettings();
+  const [_, replayActions] = useReplays();
   useEffect(() => {
     settingsActions.initState();
+    replayActions.initListeners();
   }, []);
   const done = doneLoading([settingsState]);
   if (!done) {

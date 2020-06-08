@@ -1,8 +1,8 @@
-import fs from "fs";
-import paths from "path";
+import * as fs from "fs";
+import * as paths from "path";
 
 export function getFiles(path: string): string[] {
-  const files = fs.readdirSync(path);
+  const files = fs.readdirSync(paths.resolve(path));
   return files;
 }
 
@@ -14,8 +14,8 @@ export function readFileAsObject<T>(path: string): T {
   return JSON.parse(content);
 }
 
-export function resolvePath(path: string) {
-  return paths.resolve(path);
+export function resolvePath(...path: string[]) {
+  return paths.resolve(...path);
 }
 
 export function getFileStats(path: string): fs.Stats {
@@ -24,4 +24,8 @@ export function getFileStats(path: string): fs.Stats {
 
 export function fileExists(path: string) {
   return fs.existsSync(paths.resolve(path));
+}
+
+export function makeDir(path: string) {
+  fs.mkdirSync(paths.resolve(path));
 }

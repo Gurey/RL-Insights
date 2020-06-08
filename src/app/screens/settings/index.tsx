@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -18,7 +18,6 @@ import { useSettings } from "../../store/settings/settingsStore";
 import { useReplays } from "../../store/replays/index";
 import { ReplayJSONPlayer, ReplayJSON } from "../../store/replays/ReplayJson";
 import { findPlayerId } from "./findPlayerId";
-import * as carballService from "../../system/carball";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -74,41 +73,9 @@ export const Settings = (props: any) => {
     );
   };
 
-  const installCarball = () => {
-    setInstallingCarball(true);
-    return carballService
-      .installCarball((dep: string) =>
-        setInstallingCarballMessage(`Installing ${dep}`),
-      )
-      .then(() => {
-        setInstallingCarball(false);
-        actions.validateSettings();
-      })
-      .catch((e) => {
-        setInstallingCarball(false);
-        setInstallingCarballMessage(e.message);
-      });
-  };
-
-  const renderInstallCarball = () => {
-    if (intallingCarball) {
-      return (
-        <span>
-          <CircularProgress />
-        </span>
-      );
-    } else {
-      return (
-        <span>
-          <Button onClick={installCarball}>Install</Button>
-        </span>
-      );
-    }
-  };
-
   const onFindMyPlayerId = () => {
     setLocalState({ ...localState, imporingReplay: true });
-    return findPlayerId(state.replaysFolder).then((replayFile) => {
+    return findPlayerId(state.replaysFolder, console.log).then((replayFile) => {
       console.log("Updating state!!!");
       setLocalState({
         knownPlayers: replayFile.players,
@@ -216,15 +183,6 @@ export const Settings = (props: any) => {
           >
             Select replay folder
           </Button>
-        </CardContent>
-      </Card>
-      <Card className={classes.card}>
-        <CardContent>
-          <Typography className={classes.title} variant="h5">
-            Carball
-          </Typography>
-          {renderInstallCarball()}
-          <Typography>{intallingCarballMessage}</Typography>
         </CardContent>
       </Card>
       <Card className={classes.card}>

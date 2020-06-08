@@ -8,7 +8,7 @@ import {
   TableRow,
   TableBody,
 } from "@material-ui/core";
-import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
+import { CarballAnalysisHandler } from "../../../../system/carball/carball-json";
 import { keysOf } from "../../../util/keysOf";
 
 type Props = { analysis: CarballAnalysisHandler } & React.HTMLAttributes<{}>;
@@ -16,6 +16,7 @@ type Props = { analysis: CarballAnalysisHandler } & React.HTMLAttributes<{}>;
 export const TeamCenterOfMassTable: FunctionComponent<Props> = (props) => {
   const { analysis } = props;
   const { myTeam, otherTeam } = analysis.getTeams();
+  if (!myTeam.stats.centerOfMass) return null;
   const { positionalTendencies: myPt, ...myRest } = myTeam.stats.centerOfMass;
   const {
     positionalTendencies: otherPt,

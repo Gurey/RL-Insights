@@ -1,21 +1,15 @@
 import React, { FunctionComponent } from "react";
-import {
-  Paper,
-  Typography,
-  makeStyles,
-  createStyles,
-  TableContainer,
-  Table,
-  TableHead,
-  TableCell,
-  TableRow,
-  TableBody,
-} from "@material-ui/core";
-import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
-import { PlayersBoost } from "./PlayersBoost";
+import { Typography, makeStyles, createStyles } from "@material-ui/core";
+import { CarballAnalysisHandler } from "../../../../system/carball/carball-json";
 import { GenericPlayersStatsTable } from "./GenericPlayersStatsTable";
+import { PlayerStats } from "../../../store/replays/ReplayJson";
+import { ReplaysState, PlayersAnalysisData } from "../../../store/replays";
 
-type Props = { analysis: CarballAnalysisHandler } & React.HTMLAttributes<{}>;
+type Props = {
+  analysis: CarballAnalysisHandler;
+  //playerStats: { [key: string]: AnalysisData<PlayerStats> };
+  playerStats: PlayersAnalysisData;
+} & React.HTMLAttributes<{}>;
 
 const useStyle = makeStyles((theme) =>
   createStyles({
@@ -29,7 +23,7 @@ const useStyle = makeStyles((theme) =>
 );
 
 export const Players: FunctionComponent<Props> = (props) => {
-  const { analysis } = props;
+  const { analysis, playerStats } = props;
   const classes = useStyle();
 
   return (

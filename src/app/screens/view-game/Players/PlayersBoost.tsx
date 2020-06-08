@@ -8,7 +8,7 @@ import {
   TableRow,
   TableBody,
 } from "@material-ui/core";
-import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
+import { CarballAnalysisHandler } from "../../../../system/carball/carball-json";
 import { keysOf } from "../../../util/keysOf";
 import { unique } from "../../../util/arrayUtils";
 

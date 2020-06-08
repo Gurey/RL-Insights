@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import * as db from "../../system/db";
+import React, { useState, useEffect } from "react";
+import * as db from "../../../system/db";
 import { usePlayers } from "../../store/player";
 import { useSettings } from "../../store/settings/settingsStore";
 import {
@@ -10,12 +10,12 @@ import {
   Card,
   CardContent,
 } from "@material-ui/core";
-import { readFileAsObject } from "../../system/file/readFiles";
-import { PlaylistIndex, PlaylistIndexContainer } from "../../system/db/types";
-import { ReplayJSON, PlayerStats } from "../../store/replays/ReplayJson";
-import { CarballAnalysisHandler } from "../../system/carball/carball-json";
-import { getStats } from "../../objectMath/objectMath";
+import { PlaylistIndexContainer } from "../../../system/db/types";
+import { PlayerStats } from "../../store/replays/ReplayJson";
+import { useReplays } from "../../store/replays";
 import { PlayerStatsTable } from "./PlayerStatsTable";
+import { ReplaysAnalysis } from "../../analysis/Analysis";
+import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -34,45 +34,43 @@ function calculateMeans(
   files: PlaylistIndexContainer,
   playerId: string,
   setStatus: (status: string) => void,
-  setPlayerStats: (playerStats: AnalysisData<PlayerStats>) => void,
+  setPlayerStats: (
+    playerStats: AnalysisData<PlayerStats, AnalysisDataNode>,
+  ) => void,
 ) {
   const replays = Object.keys(files);
   const filesLength = replays.length;
   console.log("Number of replays", filesLength);
   setStatus("Loading files...");
-  const playerStats: PlayerStats[] = [];
+  const replayFiles: string[] = [];
   for (const replayIndexKey of replays) {
     const replayIndex = files[replayIndexKey];
-    const fileContent = readFileAsObject<ReplayJSON>(replayIndex.jsonPath);
-    const carballHandler = new CarballAnalysisHandler(fileContent, playerId);
-    playerStats.push(carballHandler.getPlayer(playerId).stats);
+    replayFiles.push(replayIndex.jsonPath);
   }
-  setStatus("Getting stats...");
-  const stats = getStats(playerStats) as AnalysisData<PlayerStats>;
-  setStatus("Stats done!");
-  setPlayerStats(stats);
-  console.log("Done reading all the files");
+  const analysis = new ReplaysAnalysis(replayFiles, playerId);
+  setPlayerStats(analysis.playerStats(setStatus));
 }
 
 export default function Me(props: any) {
+  const { playerId } = useParams();
   const [playersState, playersActions] = usePlayers();
-  const [settingsState, settingsActions] = useSettings();
-  const [status, setStatus] = useState("");
-  const [playerStats, setPlayerStats] = useState(
-    {} as AnalysisData<PlayerStats>,
-  );
+  const [replays, replayActions] = useReplays();
   const classes = useStyles();
   const playlists = db.replayIndex().getPlaylists();
   const files = db.replayIndex().getReplays(playlists[0]);
-  useMemo(
-    () =>
-      calculateMeans(files, settingsState.playerId, setStatus, setPlayerStats),
-    [],
-  );
+  const playerStats = replays.playersAnalysisData[playerId];
+  useEffect(() => {
+    if (playlists) {
+      replayActions.loadPlayerStats(playerId, playlists[0]);
+    }
+  }, [replays.lastImportTime]);
+  if (!playlists) {
+    return <Typography>No replays imported yet!</Typography>;
+  }
   return (
     <div>
       <div className={classes.header}>
-        <Typography variant="h4">{settingsState.playerName}</Typography>
+        <Typography variant="h4">{playerId}</Typography>
         <Typography variant="h4">{playlists[0]}</Typography>
       </div>
       <Card>

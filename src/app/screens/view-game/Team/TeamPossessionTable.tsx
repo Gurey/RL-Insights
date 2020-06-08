@@ -8,7 +8,7 @@ import {
   TableRow,
   TableBody,
 } from "@material-ui/core";
-import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
+import { CarballAnalysisHandler } from "../../../../system/carball/carball-json";
 import { keysOf } from "../../../util/keysOf";
 
 type Props = { analysis: CarballAnalysisHandler } & React.HTMLAttributes<{}>;
@@ -17,6 +17,7 @@ export const TeamPossessionTable: FunctionComponent<Props> = (props) => {
   const { analysis } = props;
   const { myTeam, otherTeam } = analysis.getTeams();
   const myTeamPos = myTeam.stats.possession;
+  if (!myTeamPos) return null;
   const otherTeamPos = otherTeam.stats.possession;
   const keys = keysOf(myTeamPos);
   return (

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   CircularProgress,
   Paper,
@@ -6,15 +6,18 @@ import {
   makeStyles,
   createStyles,
 } from "@material-ui/core";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, useParams } from "react-router-dom";
 import { ReplayJSON } from "../../store/replays/ReplayJson";
-import * as fileService from "../../system/file/readFiles";
+import { useSettings } from "../../store/settings/settingsStore";
+import { useReplays } from "../../store/replays";
+import * as fileService from "../../../system/file/readFiles";
 import { GMetadata } from "./GameMetadata";
 import { GameGoals } from "./GameGoals";
 import { GameDemos } from "./GameDemos";
 import { Team } from "./Team/Team";
-import { CarballAnalysisHandler } from "../../system/carball/carball-json";
+import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
 import { Players } from "./Players/Players";
+import * as db from "../../../system/db";
 
 const useStyle = makeStyles((theme) =>
   createStyles({
@@ -38,20 +41,49 @@ const useStyle = makeStyles((theme) =>
 
 type Props = RouteComponentProps;
 
+function fmtMSS(ss: number) {
+  let s = Math.round(ss);
+  return (s - (s %= 60)) / 60 + (9 < s ? ":" : ":0") + s;
+}
+
+function howLongIsTheGame(json: ReplayJSON) {
+  // This function works with 2344956F4849E60C6C17D4ABCD04F57A-1590607581.json
+  console.log("Game claims to be", json.gameMetadata.length / 60, "minutes");
+  console.log("Frames", json.gameMetadata.frames);
+  const { goals } = json.gameMetadata;
+  const { kickoffStats } = json.gameStats;
+  console.log(goals, kickoffStats);
+  let framesToRemove = kickoffStats[0].touchFrame;
+  const removals = goals.map(
+    (g, i) => kickoffStats[i + 1].touchFrame - g.frameNumber,
+  );
+}
+
 export default function ViewGame(props: Props) {
+  const { gameId } = useParams();
   const classes = useStyle();
-  const { replay } = props.location.state as {
-    replay: { file: string; time: number; path: string };
-  };
   const [replayJson, setReplayJson] = useState<ReplayJSON>();
+  const [settings, _] = useSettings();
+  const [replays, replayActions] = useReplays();
+  const replay = db.replayIndex().getReplay(gameId);
   useEffect(() => {
-    console.log("Loading replay...");
-    const obj = fileService.readFileAsObject<ReplayJSON>(replay.path);
-    console.log("Loading replay done!");
-    setReplayJson((state) => ({ ...state, ...obj }));
-  }, [replay.file]);
-  if (!replayJson) return <CircularProgress />;
-  const json = new CarballAnalysisHandler(replayJson, "76561197994894847");
+    if (replay && replay.jsonPath) {
+      console.log("Loading replay...");
+      const obj = fileService.readFileAsObject<ReplayJSON>(replay.jsonPath);
+      console.log("Loading replay done!");
+      setReplayJson((state) => obj);
+    }
+  }, [replay && replay.fileName]);
+  const json = useMemo(() => {
+    if (replayJson) {
+      return new CarballAnalysisHandler(replayJson, settings.playerId);
+    }
+  }, [replayJson?.gameMetadata.id]);
+
+  if (!replay) {
+    return <Typography>No Replay found</Typography>;
+  }
+  if (!replayJson || !json) return <CircularProgress />;
 
   return (
     <div>
@@ -67,7 +99,10 @@ export default function ViewGame(props: Props) {
         <Team analysis={json}></Team>
       </div>
       <div className={classes.team}>
-        <Players analysis={json}></Players>
+        <Players
+          analysis={json}
+          playerStats={replays.playersAnalysisData}
+        ></Players>
       </div>
     </div>
   );

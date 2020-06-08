@@ -11,6 +11,7 @@ export function sortObjectByKey(
   sortKey: string,
   descending: boolean = true,
 ) {
+  if (!obj) return obj;
   const ordered: any = {};
   Object.keys(obj)
     .sort((k1: string, k2: string) => {

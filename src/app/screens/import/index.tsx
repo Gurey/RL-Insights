@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSettings } from "../../store/settings/settingsStore";
 import { useReplays } from "../../store/replays";
 import {
@@ -24,9 +24,9 @@ export default function ImportScreen(props: any) {
   const [state, actions] = useReplays();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(50);
-  useMemo(() => actions.findReplays(settingsState.replaysFolder), [
-    settingsState.replaysFolder,
-  ]);
+  useEffect(() => {
+    actions.findReplays(settingsState.replaysFolder);
+  }, [settingsState.replaysFolder]);
 
   return (
     <div>
@@ -50,14 +50,7 @@ export default function ImportScreen(props: any) {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((r) => {
                   const importClick = () => {
-                    const outputPath = actions
-                      .importReplay(r)
-                      .then((output) => {
-                        if (output) {
-                          console.log(`Index ${output}`);
-                          actions.indexReplay(output, settingsState.playerId);
-                        }
-                      });
+                    actions.importReplay(r);
                   };
                   const importButton = !r.importing ? (
                     <Button size="small" color="primary" onClick={importClick}>

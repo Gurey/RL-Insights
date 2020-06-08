@@ -17,6 +17,7 @@ import MyTeam from "../screens/my-team";
 import { Settings } from "../screens/settings";
 import Sessions from "../screens/sessions";
 import ViewGame from "../screens/view-game";
+import { useSettings } from "../store/settings/settingsStore";
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -46,6 +47,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function ClippedDrawer() {
   const classes = useStyles();
+  const [settingsState] = useSettings();
 
   return (
     <Router>
@@ -61,10 +63,21 @@ export default function ClippedDrawer() {
           <Toolbar>RL Insigts</Toolbar>
           <div className={classes.drawerContainer}>
             <List>
-              {["Sessions", "Me", "My Teams", "Import"].map((text, index) => (
+              <ListItem
+                component={Link}
+                to={`/me/${settingsState.playerId}`}
+                button
+                key={"Me"}
+              >
+                <ListItemIcon>
+                  <InboxIcon />
+                </ListItemIcon>
+                <ListItemText primary="Me" />
+              </ListItem>
+              {["Sessions", "My Teams", "Import"].map((text, index) => (
                 <ListItem
                   component={Link}
-                  to={text.replace(" ", "")}
+                  to={"/" + text.replace(" ", "")}
                   button
                   key={text}
                 >
@@ -90,7 +103,10 @@ export default function ClippedDrawer() {
         </Drawer>
         <main className={classes.content}>
           <Switch>
-            <Route path="/Me" render={(props) => <Me {...props} />}></Route>
+            <Route
+              path="/Me/:playerId"
+              render={(props) => <Me {...props} />}
+            ></Route>
             <Route
               path="/MyTeams"
               render={(props) => <MyTeam {...props} />}
@@ -104,7 +120,7 @@ export default function ClippedDrawer() {
               render={(props) => <Settings {...props} />}
             ></Route>
             <Route
-              path="/ViewGame"
+              path="/ViewGame/:gameId"
               render={(props) => <ViewGame {...props} />}
             ></Route>
             <Route path="/" render={(props) => <Sessions {...props} />}></Route>

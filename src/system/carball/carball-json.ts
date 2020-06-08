@@ -1,6 +1,11 @@
+import {
+  ReplayJSON,
+  Team,
+  PlayerStats,
+} from "../../app/store/replays/ReplayJson";
 import { CustomDemo, CustomGoal, CustomTeams, GameTime } from "./types";
-import { ReplayJSON, PlayerStats, Team } from "../../store/replays/ReplayJson";
-import { normalize } from "../../objectMath/objectMath";
+import { normalize } from "../../app/objectMath/objectMath";
+import memo from "fast-memoize";
 
 export class CarballAnalysisHandler {
   private readonly FIVE_MINUTES = 5 * 60;
@@ -54,9 +59,8 @@ export class CarballAnalysisHandler {
   }
 
   getNormalizer() {
-    if (!this.normalizer) {
-      this.normalizer = this.getGameTime().replayTime / this.FIVE_MINUTES;
-    }
+    this.normalizer =
+      this.getGameTime().replayTimeWithoutKickoffs / this.FIVE_MINUTES;
     console.log("Normalizer", this.normalizer);
     return this.normalizer;
   }
@@ -69,13 +73,15 @@ export class CarballAnalysisHandler {
     return this.getPlayer(playerId).stats;
   }
 
-  getPlayerStatsNormalized(playerId: string) {
+  private _getPlayerStatsNormalized(playerId: string) {
     const stats = this.getPlayer(playerId).stats;
-    console.log("stats", stats);
     const normalized = normalize(stats, this.getNormalizer()) as PlayerStats;
-    console.log("Normalized", normalized);
     return normalized;
   }
+
+  getPlayerStatsNormalized = memo((playerId: string) =>
+    this._getPlayerStatsNormalized(playerId),
+  );
 
   getPlayers() {
     return this.json.players;

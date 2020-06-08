@@ -1,10 +1,14 @@
 import { createStore, createHook } from "react-sweet-state";
 const { dialog }: typeof Electron.remote = window.require("electron").remote;
 import { getPythonVersion, getCarballInstalled } from "../../system/carball";
-import * as db from "../../system/db";
+import * as db from "../../../system/db";
 import fs from "fs";
 import os from "os";
 import paths from "path";
+
+type UseSettings = ReturnType<typeof useSettings>;
+export type SettingsState = UseSettings[0];
+export type SettingsActions = UseSettings[1];
 
 const INITIAL_REPLAY_FOLDER = paths.resolve(
   `${os.homedir()}/Documents/My Games/Rocket League/TAGame/Demos`,

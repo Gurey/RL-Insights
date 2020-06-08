@@ -8,8 +8,12 @@ export function saveState(storeId: string, state: any) {
   db.set(`state.${storeId}`, state);
 }
 
-export function getState(storeId: string) {
-  return db.get(`state.${storeId}`);
+export function getState(storeId: string, def: any = {}) {
+  return db.get(`state.${storeId}`, def);
+}
+
+export function getPlayerId() {
+  return getState("settings").playerId;
 }
 
 export function replayIndex() {

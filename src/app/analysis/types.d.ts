@@ -6,10 +6,15 @@ type AnalysisDataNode = {
   numberOfDataPoints: number;
 };
 
-type AnalysisData<T> = {
+type PearsonCorrelationNode = {
+  correlation: number;
+  pValue: number;
+};
+
+type AnalysisData<T, U> = {
   [K in keyof T]: T[K] extends object
-    ? AnalysisData<T[K]>
+    ? AnalysisData<T[K], U>
     : T[K] extends number
-    ? AnalysisDataNode
+    ? U
     : T[K];
 };

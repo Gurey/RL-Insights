@@ -1,9 +1,9 @@
 import { createStore, createHook } from "react-sweet-state";
 import { PlayerStats, ReplayJSON } from "../replays/ReplayJson";
-import * as fileService from "../../system/file/readFiles";
-import * as gameService from "../../game/games";
+import * as fileService from "../../../system/file/readFiles";
+import * as gameService from "../../../main/game/games";
 import { getStats } from "../../objectMath/objectMath";
-import { CarballAnalysisHandler } from "../../system/carball/carball-json";
+import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
 
 const loadPlayerStats = (path: string, playerId: string) => {
   const file = fileService.readFileAsObject<ReplayJSON>(path);

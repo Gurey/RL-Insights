@@ -51,4 +51,8 @@ module.exports = [
       name: "[path][name].[ext]",
     },
   },
+  {
+    test: /\.py$/i,
+    use: "raw-loader",
+  },
 ];
