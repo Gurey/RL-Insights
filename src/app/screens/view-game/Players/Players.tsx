@@ -23,7 +23,7 @@ const useStyle = makeStyles((theme) =>
 );
 
 export const Players: FunctionComponent<Props> = (props) => {
-  const { analysis, playerStats } = props;
+  const { analysis } = props;
   const classes = useStyle();
 
   return (

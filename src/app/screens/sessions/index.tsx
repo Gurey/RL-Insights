@@ -16,22 +16,14 @@ import {
 import { RouteComponentProps } from "react-router-dom";
 import { ExpandMore } from "@material-ui/icons";
 import moment from "moment";
+import { Session } from "../../components/session";
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    expansionDetails: {
-      flex: 1,
-      flexDirection: "column",
-      display: "flex",
-    },
-  }),
-);
+const useStyles = makeStyles((theme) => createStyles({}));
 
 type Props = RouteComponentProps;
 
 export default function Sessions(props: Props) {
   const [state, actions] = useReplays();
-  const classes = useStyles();
   useEffect(() => {
     actions.loadGameSessions("RANKED_STANDARD");
   }, [state.lastImportTime]);
@@ -41,44 +33,9 @@ export default function Sessions(props: Props) {
   return (
     <div>
       <Typography variant="h4">Sessions</Typography>
-      {state.sessions.map((sess, index) => {
-        console.log(sess.from);
-        return (
-          <ExpansionPanel key={sess.from} defaultExpanded={index === 0}>
-            <ExpansionPanelSummary
-              expandIcon={<ExpandMore />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>
-                {moment(sess.from * 1000).format("ddd YYYY-MM-DD HH:mm")}
-              </Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails className={classes.expansionDetails}>
-              <List component="nav" aria-label="secondary mailbox folders">
-                {sess.replays.map((r) => {
-                  const itemText = `${moment(r.gameDate * 1000).format(
-                    "HH:mm",
-                  )} ${r.win ? "Win" : "Loss"}`;
-                  return (
-                    <ListItem
-                      key={r.fileName}
-                      button
-                      onClick={() =>
-                        props.history.push({
-                          pathname: `/ViewGame/${r.fileName}`,
-                        })
-                      }
-                    >
-                      <ListItemText primary={itemText} />
-                    </ListItem>
-                  );
-                })}
-              </List>
-            </ExpansionPanelDetails>
-          </ExpansionPanel>
-        );
-      })}
+      {state.sessions.map((sess, index) => (
+        <Session key={sess.from} session={sess} expanded={index === 0} />
+      ))}
     </div>
   );
 }

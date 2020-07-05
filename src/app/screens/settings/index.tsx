@@ -81,8 +81,6 @@ export const Settings = (props: any) => {
         knownPlayers: replayFile.players,
         imporingReplay: false,
       });
-
-      console.log(replayFile.players);
     });
   };
 
@@ -109,7 +107,7 @@ export const Settings = (props: any) => {
           return;
         }
         const player = localState.knownPlayers.find((p) => p.id.id === value)!;
-        console.log(name, player);
+
         actions.setPlayerId({
           playerId: player.id.id,
           playerName: player.name,

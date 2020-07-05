@@ -11,6 +11,8 @@ import * as fileService from "../../system/file/readFiles";
 import { ReplayJSON } from "../../app/store/replays/ReplayJson";
 import { CarballAnalysisHandler } from "../../system/carball/carball-json";
 import * as gameService from "../game/games";
+import Bottleneck from "bottleneck";
+import os from "os";
 
 export enum ImportReplayActions {
   REQ_IMPORT_REPLAY = "IMPORT_REPLAY",
@@ -22,6 +24,10 @@ export class ImportReplay {
   private static initiated = false;
   private static JSON_PATH: string;
 
+  private static limiter = new Bottleneck({
+    maxConcurrent: os.cpus().length,
+  });
+
   static init(win: BrowserWindow, app: App) {
     if (this.initiated) return;
     // init
@@ -30,6 +36,7 @@ export class ImportReplay {
     this.JSON_PATH = Path.resolve(app.getPath("userData"), "jsons/");
     // Start listeners
     this.startImportReplay();
+    this.startLimiterListerners();
     this.initiated = true;
     console.log("Initiated ImportReplay listeners");
   }
@@ -38,26 +45,34 @@ export class ImportReplay {
     this.socket.onEvent(
       ImportReplayActions.REQ_IMPORT_REPLAY,
       async (req: Event) => {
-        console.log(typeof req.data, req.data);
-        const replayFile = req.data as ReplayFile;
-        try {
-          const { lastLine } = await importReplay(replayFile);
-          const playerId = db.getPlayerId();
-          const json = fileService.readFileAsObject<ReplayJSON>(lastLine!);
-          const analysis = new CarballAnalysisHandler(json, playerId);
-          const index = gameService.createReplayIndex(lastLine!, analysis);
-          db.replayIndex().saveReplayIndex(json.gameMetadata.playlist, index);
-          this.socket.send(ImportReplayActions.MSG_REPLAY_IMPORTED, {
-            replayName: replayFile.name,
-          } as ImportReplayResult);
-        } catch (error) {
-          console.error(error);
-          this.socket.send(ImportReplayActions.MSG_REPLAY_IMPORTED, {
-            replayName: replayFile.name,
-            error: error.message,
-          } as ImportReplayResult);
-        }
+        this.limiter.schedule(async () => {
+          const replayFile = req.data as ReplayFile;
+          console.log("Importing replay", replayFile.name);
+          try {
+            const { lastLine } = await importReplay(replayFile);
+            const playerId = db.getPlayerId();
+            const json = fileService.readFileAsObject<ReplayJSON>(lastLine!);
+            const analysis = new CarballAnalysisHandler(json, playerId);
+            const index = gameService.createReplayIndex(lastLine!, analysis);
+            db.replayIndex().saveReplayIndex(json.gameMetadata.playlist, index);
+            this.socket.send(ImportReplayActions.MSG_REPLAY_IMPORTED, {
+              replayName: replayFile.name,
+            } as ImportReplayResult);
+          } catch (error) {
+            console.error(error);
+            this.socket.send(ImportReplayActions.MSG_REPLAY_IMPORTED, {
+              replayName: replayFile.name,
+              error: error.message,
+            } as ImportReplayResult);
+          }
+        });
       },
     );
+    console.log("Import event listener started");
+  }
+
+  private static startLimiterListerners() {
+    this.limiter.on("idle", () => console.log("IDLE"));
+    console.log("Import limiter listeners started!");
   }
 }

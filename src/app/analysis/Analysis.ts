@@ -1,6 +1,10 @@
 import { CarballAnalysisHandler } from "../../system/carball/carball-json";
 import { readFileAsObject } from "../../system/file/readFiles";
-import { ReplayJSON, PlayerStats } from "../store/replays/ReplayJson";
+import {
+  ReplayJSON,
+  PlayerStats,
+  TeamStats,
+} from "../store/replays/ReplayJson";
 import { getStats, pValue, correlation } from "../objectMath/objectMath";
 
 export class ReplaysAnalysis {
@@ -10,6 +14,8 @@ export class ReplaysAnalysis {
   private games: CarballAnalysisHandler[];
 
   private DEFAULT_CALLBACK = () => {};
+
+  private teamMode = false;
 
   constructor(replayJsonPaths: string[], playerId: string) {
     this.replayJsonFiles = replayJsonPaths;
@@ -42,12 +48,26 @@ export class ReplaysAnalysis {
       );
     }
     statusCallback("Getting stats...");
-    const stats = getStats(playerStatsList) as AnalysisData<
-      PlayerStats,
-      AnalysisDataNode
-    >;
+    const stats = getStats(playerStatsList);
     statusCallback("Stats done!");
     return stats;
+  }
+
+  teamStats() {
+    const teamStatsList: TeamStats[] = [];
+    for (const carballHandler of this.getGames()) {
+      teamStatsList.push(carballHandler.getTeamStatsNormalized());
+    }
+    const stats = getStats(teamStatsList);
+    return stats;
+  }
+
+  getTeamGoalDiffCorrelation() {
+    return this.getTeamPearsonCorrelation(
+      (g) =>
+        (g.getTeams().myTeam.score - g.getTeams().otherTeam.score) /
+        g.getNormalizer(),
+    );
   }
 
   getWinLossPValue() {
@@ -60,25 +80,30 @@ export class ReplaysAnalysis {
       );
     }
     const corr = pValue(playerStatsList, winLoss) as PlayerStats;
-    console.log(corr);
     return corr;
   }
 
-  getGoalDiffCorrelation() {
-    return this.getPearsonCorrelation(
-      (g) => g.getTeams().myTeam.score - g.getTeams().otherTeam.score,
+  getPlayerGoalDiffCorrelation() {
+    return this.getPlayerPearsonCorrelation(
+      (g) =>
+        (g.getTeams().myTeam.score - g.getTeams().otherTeam.score) /
+        g.getNormalizer(),
     );
   }
 
   getMyTeamScoreCorrelation() {
-    return this.getPearsonCorrelation((g) => g.getTeams().myTeam.score);
+    return this.getPlayerPearsonCorrelation((g) => g.getTeams().myTeam.score);
   }
 
   getOtherTeamScoreCorrelation() {
-    return this.getPearsonCorrelation((g) => g.getTeams().otherTeam.score);
+    return this.getPlayerPearsonCorrelation(
+      (g) => g.getTeams().otherTeam.score,
+    );
   }
 
-  getPearsonCorrelation(select: (game: CarballAnalysisHandler) => number) {
+  getPlayerPearsonCorrelation(
+    select: (game: CarballAnalysisHandler) => number,
+  ) {
     const games = this.getGames();
     const compareWith = games.map(select);
     const playerStatsList: PlayerStats[] = [];
@@ -89,6 +114,20 @@ export class ReplaysAnalysis {
     }
     const corr = correlation(playerStatsList, compareWith) as AnalysisData<
       PlayerStats,
+      PearsonCorrelationNode
+    >;
+    return corr;
+  }
+
+  getTeamPearsonCorrelation(select: (game: CarballAnalysisHandler) => number) {
+    const games = this.getGames();
+    const compareWith = games.map(select);
+    const teamStatsList: TeamStats[] = [];
+    for (const carballHandler of games) {
+      teamStatsList.push(carballHandler.getTeamStatsNormalized());
+    }
+    const corr = correlation(teamStatsList, compareWith) as AnalysisData<
+      TeamStats,
       PearsonCorrelationNode
     >;
     return corr;

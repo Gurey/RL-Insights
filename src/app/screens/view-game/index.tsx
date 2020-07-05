@@ -18,6 +18,10 @@ import { Team } from "./Team/Team";
 import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
 import { Players } from "./Players/Players";
 import * as db from "../../../system/db";
+import {
+  getTeamId,
+  getTeamIdFromReplayJson,
+} from "../../../system/db/util/ids";
 
 const useStyle = makeStyles((theme) =>
   createStyles({
@@ -48,11 +52,8 @@ function fmtMSS(ss: number) {
 
 function howLongIsTheGame(json: ReplayJSON) {
   // This function works with 2344956F4849E60C6C17D4ABCD04F57A-1590607581.json
-  console.log("Game claims to be", json.gameMetadata.length / 60, "minutes");
-  console.log("Frames", json.gameMetadata.frames);
   const { goals } = json.gameMetadata;
   const { kickoffStats } = json.gameStats;
-  console.log(goals, kickoffStats);
   let framesToRemove = kickoffStats[0].touchFrame;
   const removals = goals.map(
     (g, i) => kickoffStats[i + 1].touchFrame - g.frameNumber,
@@ -72,6 +73,11 @@ export default function ViewGame(props: Props) {
       const obj = fileService.readFileAsObject<ReplayJSON>(replay.jsonPath);
       console.log("Loading replay done!");
       setReplayJson((state) => obj);
+      replayActions.loadTeamStats(
+        settings.playerId,
+        obj.gameMetadata.playlist,
+        getTeamIdFromReplayJson(settings.playerId, obj.teams),
+      );
     }
   }, [replay && replay.fileName]);
   const json = useMemo(() => {
@@ -96,7 +102,7 @@ export default function ViewGame(props: Props) {
         <GameDemos className={classes.category} gameDemos={json.getDemos()} />
       </div>
       <div className={classes.team}>
-        <Team analysis={json}></Team>
+        <Team analysis={json} teamStats={replays.teamAnalysisData}></Team>
       </div>
       <div className={classes.team}>
         <Players

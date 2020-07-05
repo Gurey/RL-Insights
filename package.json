@@ -85,6 +85,7 @@
     "adm-zip": "^0.4.14",
     "anova": "^1.0.2",
     "axios": "^0.19.2",
+    "bottleneck": "^2.19.5",
     "compute-pcorr": "^1.0.0",
     "electron-ipc-socket": "^2.1.1",
     "electron-squirrel-startup": "^1.0.0",

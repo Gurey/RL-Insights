@@ -7,3 +7,13 @@ export function unique(array: any[]) {
   array.forEach((v) => set.add(v));
   return Array.from(set.keys());
 }
+
+export function multiIndex(array: any[], searchFor: any) {
+  const result: number[] = [];
+  array.forEach((value, index) => {
+    if (value === searchFor) {
+      result.push(index);
+    }
+  });
+  return result;
+}

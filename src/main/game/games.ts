@@ -1,7 +1,11 @@
 import * as files from "../../system/file/readFiles";
-import { ReplayJSON } from "../../app/store/replays/ReplayJson";
+import {
+  ReplayJSON,
+  ReplayJSONPlayer,
+  Team,
+} from "../../app/store/replays/ReplayJson";
 import { CarballAnalysisHandler } from "../../system/carball/carball-json";
-import { ReplayIndex, PlaylistIndex } from "../../system/db/types";
+import { PlaylistIndex, Player } from "../../system/db/types";
 
 export async function getWinsAndLosses(
   paths: string[],
@@ -35,17 +39,28 @@ export function createReplayIndex(
   replayJson: CarballAnalysisHandler,
 ): PlaylistIndex {
   const { gameMetadata, players } = replayJson.getJson();
+  const { myTeam, otherTeam } = replayJson.getTeams();
   const index: PlaylistIndex = {
     fileName: gameMetadata.id,
     jsonPath,
     gameDate: +gameMetadata.time,
-    players: players.map((p) => ({
-      name: p.name,
-      playerId: p.id.id,
-      score: p.score,
-    })),
+    myTeam: playersToIndexPlayers(players, myTeam),
+    otherTeam: playersToIndexPlayers(players, otherTeam),
     replayName: gameMetadata.name,
     win: replayJson.didWeWin(),
   };
   return index;
+}
+
+function playersToIndexPlayers(
+  rawPlayers: ReplayJSONPlayer[],
+  team: Team,
+): Player[] {
+  return rawPlayers
+    .filter((p) => team.playerIds.some((p2) => p2.id === p.id.id))
+    .map((p) => ({
+      name: p.name,
+      playerId: p.id.id,
+      score: p.score,
+    }));
 }

@@ -13,11 +13,12 @@ import MailIcon from "@material-ui/icons/Mail";
 import { HashRouter as Router, Link, Switch, Route } from "react-router-dom";
 import Me from "../screens/me";
 import ImportScreen from "../screens/import";
-import MyTeam from "../screens/my-team";
+import TeamOverview from "../screens/team-overview";
 import { Settings } from "../screens/settings";
 import Sessions from "../screens/sessions";
 import ViewGame from "../screens/view-game";
 import { useSettings } from "../store/settings/settingsStore";
+import TeamScreen from "../screens/team-screen";
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -108,8 +109,12 @@ export default function ClippedDrawer() {
               render={(props) => <Me {...props} />}
             ></Route>
             <Route
+              path="/MyTeams/:teamId/:playlist"
+              render={(props) => <TeamScreen {...props} />}
+            ></Route>
+            <Route
               path="/MyTeams"
-              render={(props) => <MyTeam {...props} />}
+              render={(props) => <TeamOverview {...props} />}
             ></Route>
             <Route
               path="/Import"

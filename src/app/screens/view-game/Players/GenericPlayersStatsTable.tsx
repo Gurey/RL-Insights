@@ -39,7 +39,6 @@ function renderOutlier(
   if (value < mean - stdDevLimit || value > mean + stdDevLimit) {
     const diff = (value - mean) / mean;
     let percentageDiff = diff * 100;
-    // console.log(value, mean, percentageDiff, diff);
     const title = `${Math.round(percentageDiff)}%`;
     return (
       <Tooltip title={title}>
@@ -58,7 +57,7 @@ export const GenericPlayersStatsTable: FunctionComponent<Props> = (props) => {
   const history = useHistory();
   const playerOrder = unique([
     myPlayerId,
-    ...myTeam.playerIds.map((pid) => pid.id),
+    ...myTeam.playerIds.map((pid) => pid.id).sort(),
     ...otherTeam.playerIds.map((pid) => pid.id),
   ]);
   useEffect(() => {
@@ -78,7 +77,6 @@ export const GenericPlayersStatsTable: FunctionComponent<Props> = (props) => {
   if (!playerStats[0]) {
     return null;
   }
-  console.log(playerStats[0]);
   const keys = keysOf(playerStats[0]);
   const renderPlayerTableCell = (
     pid: string,

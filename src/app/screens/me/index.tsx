@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import * as db from "../../../system/db";
-import { usePlayers } from "../../store/player";
-import { useSettings } from "../../store/settings/settingsStore";
 import {
   Typography,
   makeStyles,
@@ -53,12 +51,12 @@ function calculateMeans(
 
 export default function Me(props: any) {
   const { playerId } = useParams();
-  const [playersState, playersActions] = usePlayers();
   const [replays, replayActions] = useReplays();
   const classes = useStyles();
   const playlists = db.replayIndex().getPlaylists();
   const files = db.replayIndex().getReplays(playlists[0]);
   const playerStats = replays.playersAnalysisData[playerId];
+  const playerName = db.replayIndex().getPlayerNameById(playerId, playlists[0]);
   useEffect(() => {
     if (playlists) {
       replayActions.loadPlayerStats(playerId, playlists[0]);
@@ -70,7 +68,7 @@ export default function Me(props: any) {
   return (
     <div>
       <div className={classes.header}>
-        <Typography variant="h4">{playerId}</Typography>
+        <Typography variant="h4">{playerName}</Typography>
         <Typography variant="h4">{playlists[0]}</Typography>
       </div>
       <Card>

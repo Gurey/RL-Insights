@@ -8,7 +8,7 @@ import {
   TableRow,
   TableBody,
 } from "@material-ui/core";
-import { CarballAnalysisHandler } from "../../../../system/carball/carball-json";
+import { CarballAnalysisHandler } from "../../../system/carball/carball-json";
 import { keysOf } from "../../../util/keysOf";
 import { unique } from "../../../util/arrayUtils";
 
@@ -18,7 +18,7 @@ export const PlayersBoost: FunctionComponent<Props> = (props) => {
   const { analysis } = props;
   const players = analysis.getPlayers();
   const playersBoost = players.map((p) => p.stats.boost);
-  const keys = keysOf(playersBoost[0]);
+  const keys = keysOf(playersBoost[0]) as string[];
   const myPlayerId = analysis.getMyPlayerId();
   const { myTeam, otherTeam } = analysis.getTeams();
   const playerOrder = unique([
@@ -26,7 +26,6 @@ export const PlayersBoost: FunctionComponent<Props> = (props) => {
     ...myTeam.playerIds.map((pid) => pid.id),
     ...otherTeam.playerIds.map((pid) => pid.id),
   ]);
-  console.log(myPlayerId, playerOrder, keys);
   return (
     <TableContainer component={Paper}>
       <Table size="small" aria-label="a dense table">

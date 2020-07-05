@@ -10,7 +10,8 @@ export type PlaylistIndex = {
   replayName: string;
   gameDate: number;
   win: boolean | null;
-  players: Player[];
+  myTeam: Player[];
+  otherTeam: Player[];
 };
 
 export type Player = {
@@ -25,4 +26,16 @@ export type GameSession = {
   from: number;
   to: number;
   replays: PlaylistIndex[];
+};
+
+export type PlaylistTeam = {
+  teamId: string;
+  playlist: string;
+  players: TeamMember[];
+  games: PlaylistIndex[];
+};
+
+export type TeamMember = {
+  playerId: string;
+  name: string;
 };

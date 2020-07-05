@@ -57,7 +57,7 @@ export class CarballAnalysisHandler {
     if (!this.normalizer) {
       this.normalizer = this.getGameTime().replayTime / this.FIVE_MINUTES;
     }
-    console.log("Normalizer", this.normalizer);
+
     return this.normalizer;
   }
 
@@ -71,9 +71,9 @@ export class CarballAnalysisHandler {
 
   getPlayerStatsNormalized(playerId: string) {
     const stats = this.getPlayer(playerId).stats;
-    console.log("stats", stats);
+
     const normalized = normalize(stats, this.getNormalizer()) as PlayerStats;
-    console.log("Normalized", normalized);
+
     return normalized;
   }
 

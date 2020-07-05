@@ -45,6 +45,23 @@ describe("Object math", () => {
         nest: { test2: [1, 1] },
       });
     });
+
+    test("Can pack undefined", () => {
+      const data = [{ test1: 1 }, { test1: 1 }, { test1: 1 }, {}];
+      const res = oMath.packNumbers(data, true);
+      expect(res).toEqual({ test1: [1, 1, 1, undefined] });
+    });
+
+    test("Can pack deep undefined", () => {
+      const data = [
+        { test1: { test2: 2 } },
+        { test1: { test2: 2 } },
+        { test1: { test2: 2 } },
+        { test1: {} },
+      ];
+      const res = oMath.packNumbers(data, true);
+      expect(res).toEqual({ test1: { test2: [2, 2, 2, undefined] } });
+    });
   });
   describe("Get stats", () => {
     test("Can get stats simple example", () => {
